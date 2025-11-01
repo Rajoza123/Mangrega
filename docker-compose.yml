@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: mgnrega
+      POSTGRES_USER: mgnrega
+      POSTGRES_PASSWORD: mgnrega_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mgn-net
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env.example
+    environment:
+      # override here or edit .env
+      PG_HOST: postgres
+      DATAGOV_API_KEY: ${DATAGOV_API_KEY}
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    networks:
+      - mgn-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    networks:
+      - mgn-net
+
+volumes:
+  pgdata:
+
+networks:
+  mgn-net:
